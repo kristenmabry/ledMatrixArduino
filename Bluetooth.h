@@ -3,12 +3,11 @@
 
 enum State: char { 
   Start = 0,
-  StartText = 1,
-  ReceiveText = 2,
-  StartCustom = 3,
-  ReceiveCustom = 4,
-  Finish = 5,
-  SendLayout = 6
+  ReceiveText = 1,
+  FinishText = 2,
+  ReceiveCustom = 3,
+  FinishCustom = 4,
+  SendLayout = 5
 };
 
 State getIncomingData(SoftwareSerial& bt, State state, int& counter, char* buffer);

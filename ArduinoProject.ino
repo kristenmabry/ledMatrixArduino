@@ -12,6 +12,7 @@
 #define C   A2
 
 #define TLENGTH 21
+#define CLENGTH 512
 
 RGBmatrixPanel matrix(A, B, C, CLK, LAT, OE, false);
 /* Create object named bt of the class SoftwareSerial */ 
@@ -19,42 +20,61 @@ SoftwareSerial bt(11, 12); /* (Rx,Tx) */
 
 State state = State::Start;
 int counter = 0;
-char* buffer;
-Layout layout;
+char btBuffer[CLENGTH] = {};
+Layout layout = Layout();
 
 void setup() {
   Serial.begin(9600); /* Define baud rate for serial communication */
   bt.begin(9600); /* Define baud rate for software serial communication */
   matrix.begin();
 
-  buffer = new char[TLENGTH];
+  btBuffer[0] = EEPROM.read(0);
+  if (btBuffer[0] == 'T')
+  {
+    for (int i = 1; i < TLENGTH; ++i)
+    {
+      btBuffer[i] = EEPROM.read(i);
+    }
 
-  for (int i = 0; i < TLENGTH; ++i)
-  {
-    buffer[i] = EEPROM.read(i);
+    layout.buildTextLayout(btBuffer);
+    layout.displayTextLayout(matrix);
   }
-  if (buffer[0] == 'T')
-  {
-    layout = Layout(matrix, buffer);
-  }
+  
 }
 
 void loop() {
-  state = getIncomingData(bt, state, counter, buffer);
-  
-  if (state == State::Finish)
+  state = getIncomingData(bt, state, counter, btBuffer);
+
+  if (state != State::Start)
   {
-    layout = Layout(matrix, buffer);
+    Serial.print(state, DEC);
+    Serial.println("State");
+  }
+  if (state == State::FinishText)
+  {
+    layout.buildTextLayout(btBuffer);
+    layout.displayTextLayout(matrix);
 
     for (int i = 0; i < TLENGTH; ++i)
     {
-      EEPROM.write(i, buffer[i]);
+      EEPROM.write(i, btBuffer[i]);
     }
-    
+
     state = State::Start;
   }
-  else if (state == State::SendLayout)
+  else if (state == State::SendLayout && counter == 0)
   {
-    buffer = layout.getTextLayout();
+    for (int i = 1; i < TLENGTH; ++i)
+    {
+      btBuffer[i] = EEPROM.read(i);
+    }
+  }
+  else if (state == State::FinishCustom)
+  {
+    //Serial.print(counter, DEC);
+    Serial.print(btBuffer[counter-2] >> 1, DEC);
+    layout.displayCustomLayout(matrix, counter, btBuffer);
+    Serial.print("Display Custom");
+    state = State::Start;
   }
 }

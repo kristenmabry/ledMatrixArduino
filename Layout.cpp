@@ -1,50 +1,39 @@
 #include <RGBmatrixPanel.h>
 #include "Layout.h"
 
+/*
 struct LEDINFO {
     char letter;
     char color[3];
 };
+*/
 
+/*
 Layout::Layout(RGBmatrixPanel& matrix, char* incomingData)
 {
-    for (int i = 0; i < 21; ++i)
-    {
-      data[i] = incomingData[i];
-    }
-    if (data[0] == 'T')
-    {
-        textChars = new LEDINFO[10];
-        buildTextLayout(matrix);
-        displayTextLayout(matrix);
-    }
+    buildTextLayout(matrix, incomingData);
+    displayTextLayout(matrix);
 }
 
-Layout::Layout()
+Layout::Layout(RGBmatrixPanel& matrix, char* incomingData, int counter)
 {
-  return;
+    pixels = counter;
+    displayCustomLayout(matrix, incomingData);
 }
+*/
 
-Layout::~Layout()
+void Layout::buildTextLayout(char* incomingData)
 {
-    if (data[0] == 'T')
-    {
-        delete[] textChars;
-    }
+  int letter = 0;
+  for (int i = 1; i < 21; i += 2) 
+  {
+    textChars[letter].color[0] = (incomingData[i] >> 5) & 0b111;
+    textChars[letter].color[1] = (incomingData[i] >> 2) & 0b111;
+    textChars[letter].color[2] = ((incomingData[i] & 0b11) << 1) + (incomingData[i+1] & (1 << 7));
+    textChars[letter].letter = incomingData[i + 1] & ~(1 << 7);
+    ++letter;
+  }
 }
-
-void Layout::buildTextLayout(RGBmatrixPanel& matrix)
-{
-    int letter = 0;
-    for (int i = 1; i < 21; i += 2) 
-    {
-        textChars[letter].color[0] = (data[i] >> 5) & 111;
-        textChars[letter].color[1] = (data[i] >> 2) & 111;
-        textChars[letter].color[2] = ((data[i] & 11) << 1) + (data[i+1] & (1 << 7));
-        textChars[letter].letter = data[i + 1] & ~(1 << 7);
-        ++letter;
-    }
-};
 
 void Layout::displayTextLayout(RGBmatrixPanel& matrix)
 {
@@ -67,7 +56,26 @@ void Layout::displayTextLayout(RGBmatrixPanel& matrix)
     }
 }
 
-char* Layout::getTextLayout()
+void Layout::displayCustomLayout(RGBmatrixPanel& matrix, int counter, char* incomingData)
 {
-  return data;
+    matrix.fillScreen(matrix.Color333(0, 0, 0));
+
+    int x = 0;
+    int y = 0;
+    for (int section = 1; section < counter; section += 2)
+    {
+        unsigned char count = incomingData[section] >> 1;
+        char r = ((incomingData[section] & 1) << 2) + ((incomingData[section+1] >> 6) & 0b11);
+        char g = (incomingData[section+1] >> 3) & 0b111;
+        char b = incomingData[section+1] & 0b111;
+        for (int i = 0; i < count + 1; ++i)
+        {
+            matrix.drawPixel(x++, y, matrix.Color333(r, g, b));
+            if (x == 32)
+            {
+                x = 0;
+                ++y;
+            }
+        }
+    }
 }

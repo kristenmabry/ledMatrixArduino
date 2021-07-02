@@ -3,22 +3,22 @@
 
 #include <RGBmatrixPanel.h>
 
-struct LEDINFO;
+struct LEDINFO {
+  char letter;
+  char color[3];
+};
 
 class Layout
 {
-public:
-    Layout(RGBmatrixPanel& matrix, char* incomingData);
-    Layout();
-    ~Layout();
-    void buildTextLayout(RGBmatrixPanel& matrix);
+  public:
+    // Layout(RGBmatrixPanel& matrix, char* incomingData);
+    // Layout(RGBmatrixPanel& matrix, char* incomingData, int counter);
+    void buildTextLayout(char* incomingData);
     void displayTextLayout(RGBmatrixPanel& matrix);
-    char* getTextLayout();
+    void displayCustomLayout(RGBmatrixPanel& matrix, int counter, char* incomingData);
 
-private:
-    char data[21];
-    LEDINFO* textChars;
-    uint16_t* pixels;
+  private:
+    LEDINFO textChars[10];
 };
 
 #endif
