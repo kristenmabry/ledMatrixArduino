@@ -13,6 +13,7 @@ public:
     ~Layout();
     void buildTextLayout(RGBmatrixPanel& matrix);
     void displayTextLayout(RGBmatrixPanel& matrix);
+    char* getTextLayout();
 
 private:
     char data[21];

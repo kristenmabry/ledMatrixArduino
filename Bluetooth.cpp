@@ -3,7 +3,16 @@
 
 State getIncomingData(SoftwareSerial& bt, State state, int& counter, char* buffer)
 {
-    if (!bt.available())
+    if (state == State::SendLayout)
+    {
+      bt.write(buffer[counter++]);
+      if (counter == 21)
+      {
+        counter = 0;
+        return State::Finish;
+      }
+    }
+    else if (!bt.available())
     {
         return state;
     }
@@ -16,6 +25,11 @@ State getIncomingData(SoftwareSerial& bt, State state, int& counter, char* buffe
             counter = 1;
             return State::ReceiveText;
         }
+        else if (first == 'S')
+        {
+          counter = 0;
+          return State::SendLayout;
+        }
     }
     else if (state == State::ReceiveText)
     {
@@ -25,7 +39,6 @@ State getIncomingData(SoftwareSerial& bt, State state, int& counter, char* buffe
         {
             return State::Finish;
         }
-        return State::ReceiveText;
     }
     return state;
 }

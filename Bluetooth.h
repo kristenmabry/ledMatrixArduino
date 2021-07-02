@@ -1,7 +1,7 @@
 #ifndef BLUETOOTH_H
 #define BLUETOOTH_H
 
-enum State: int { 
+enum State: char { 
   Start = 0,
   StartText = 1,
   ReceiveText = 2,

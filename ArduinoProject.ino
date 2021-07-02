@@ -19,7 +19,6 @@ SoftwareSerial bt(11, 12); /* (Rx,Tx) */
 
 State state = State::Start;
 int counter = 0;
-int eepromAddr = 0;
 char* buffer;
 Layout layout;
 
@@ -49,10 +48,13 @@ void loop() {
 
     for (int i = 0; i < TLENGTH; ++i)
     {
-      EEPROM.write(eepromAddr, buffer[i]);
-      ++eepromAddr;
+      EEPROM.write(i, buffer[i]);
     }
     
     state = State::Start;
+  }
+  else if (state == State::SendLayout)
+  {
+    buffer = layout.getTextLayout();
   }
 }

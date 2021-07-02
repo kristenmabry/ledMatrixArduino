@@ -66,3 +66,8 @@ void Layout::displayTextLayout(RGBmatrixPanel& matrix)
         matrix.print(textChars[i].letter);
     }
 }
+
+char* Layout::getTextLayout()
+{
+  return data;
+}
