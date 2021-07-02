@@ -21,7 +21,7 @@ State getIncomingData(SoftwareSerial& bt, State state, int& counter, char* buffe
     {
         char letter = bt.read();
         buffer[counter++] = letter;
-        if (counter == 41)
+        if (counter == 21)
         {
             return State::Finish;
         }

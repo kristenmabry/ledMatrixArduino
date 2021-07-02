@@ -15,7 +15,7 @@ public:
     void displayTextLayout(RGBmatrixPanel& matrix);
 
 private:
-    char data[41];
+    char data[21];
     LEDINFO* textChars;
     uint16_t* pixels;
 };

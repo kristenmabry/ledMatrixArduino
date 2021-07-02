@@ -3,12 +3,12 @@
 
 struct LEDINFO {
     char letter;
-    int color[3];
+    char color[3];
 };
 
 Layout::Layout(RGBmatrixPanel& matrix, char* incomingData)
 {
-    for (int i = 0; i < 41; ++i)
+    for (int i = 0; i < 21; ++i)
     {
       data[i] = incomingData[i];
     }
@@ -36,12 +36,12 @@ Layout::~Layout()
 void Layout::buildTextLayout(RGBmatrixPanel& matrix)
 {
     int letter = 0;
-    for (int i = 1; i < 41; i += 4) 
+    for (int i = 1; i < 21; i += 2) 
     {
-        textChars[letter].letter = data[i];
-        textChars[letter].color[0] = data[i + 1] - 48;
-        textChars[letter].color[1] = data[i + 2] - 48;
-        textChars[letter].color[2] = data[i + 3] - 48;
+        textChars[letter].color[0] = (data[i] >> 5) & 111;
+        textChars[letter].color[1] = (data[i] >> 2) & 111;
+        textChars[letter].color[2] = ((data[i] & 11) << 1) + (data[i+1] & (1 << 7));
+        textChars[letter].letter = data[i + 1] & ~(1 << 7);
         ++letter;
     }
 };

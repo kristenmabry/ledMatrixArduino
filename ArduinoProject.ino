@@ -52,7 +52,7 @@ void setup() {
   matrix.setTextColor(matrix.Color333(7,0,4));
   matrix.print('*');
 
-  buffer = new char[41];
+  buffer = new char[21];
 }
 
 void loop() {
