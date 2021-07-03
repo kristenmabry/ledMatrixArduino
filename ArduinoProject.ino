@@ -21,7 +21,6 @@ SoftwareSerial bt(11, 12); /* (Rx,Tx) */
 State state = State::Start;
 int counter = 0;
 char btBuffer[CLENGTH] = {};
-Layout layout = Layout();
 
 void setup() {
   Serial.begin(9600); /* Define baud rate for serial communication */
@@ -36,8 +35,9 @@ void setup() {
       btBuffer[i] = EEPROM.read(i);
     }
 
-    layout.buildTextLayout(btBuffer);
-    layout.displayTextLayout(matrix);
+    LEDINFO* text = buildTextLayout(btBuffer);
+    displayTextLayout(matrix, text);
+    delete[] text;
   }
   
 }
@@ -52,8 +52,9 @@ void loop() {
   }
   if (state == State::FinishText)
   {
-    layout.buildTextLayout(btBuffer);
-    layout.displayTextLayout(matrix);
+    LEDINFO* text = buildTextLayout(btBuffer);
+    displayTextLayout(matrix, text);
+    delete[] text;
 
     for (int i = 0; i < TLENGTH; ++i)
     {
@@ -71,10 +72,8 @@ void loop() {
   }
   else if (state == State::FinishCustom)
   {
-    //Serial.print(counter, DEC);
-    Serial.print(btBuffer[counter-2] >> 1, DEC);
-    layout.displayCustomLayout(matrix, counter, btBuffer);
-    Serial.print("Display Custom");
+    displayCustomLayout(matrix, counter, btBuffer);
+    Serial.println("Finish Custom");
     state = State::Start;
   }
 }
