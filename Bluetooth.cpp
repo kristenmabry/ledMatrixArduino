@@ -6,7 +6,12 @@ State getIncomingData(SoftwareSerial& bt, State state, int& counter, char* buffe
     if (state == State::SendLayout)
     {
       bt.write(buffer[counter++]);
-      if (counter == 21)
+      if (buffer[0] == 'T' && counter == 21)
+      {
+        counter = 0;
+        return State::Start;
+      }
+      else if (buffer[0] == 'C' && buffer[counter - 1] == 0 && buffer[counter-2] == 0)
       {
         counter = 0;
         return State::Start;

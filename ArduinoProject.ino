@@ -12,7 +12,7 @@
 #define C   A2
 
 #define TLENGTH 21
-#define CLENGTH 512
+#define CLENGTH 256
 
 RGBmatrixPanel matrix(A, B, C, CLK, LAT, OE, false);
 /* Create object named bt of the class SoftwareSerial */ 
@@ -39,17 +39,25 @@ void setup() {
     displayTextLayout(matrix, text);
     delete[] text;
   }
+  else
+  {
+    int i = 0;
+    for (i = 1; i < CLENGTH; ++i)
+    {
+      btBuffer[i] = EEPROM.read(i);
+      if (i >= 3 && btBuffer[i-1] == 0 && btBuffer[i-2] == 0)
+      {
+        break;
+      }
+    }
+    displayCustomLayout(matrix, i, btBuffer);
+  }
   
 }
 
 void loop() {
   state = getIncomingData(bt, state, counter, btBuffer);
 
-  if (state != State::Start)
-  {
-    Serial.print(state, DEC);
-    Serial.println("State");
-  }
   if (state == State::FinishText)
   {
     LEDINFO* text = buildTextLayout(btBuffer);
@@ -65,15 +73,35 @@ void loop() {
   }
   else if (state == State::SendLayout && counter == 0)
   {
-    for (int i = 1; i < TLENGTH; ++i)
+    btBuffer[0] = EEPROM.read(0);
+    if (btBuffer[0] == 'T')
     {
-      btBuffer[i] = EEPROM.read(i);
+      for (int i = 0; i < TLENGTH; ++i)
+      {
+        btBuffer[i] = EEPROM.read(i);
+      }
     }
+    else
+    {
+      for (int i = 1; i < CLENGTH; ++i)
+      {
+        btBuffer[i] = EEPROM.read(i);
+        if (i >= 3 && btBuffer[i-1] == 0 && btBuffer[i-2] == 0)
+        {
+          break;
+        }
+      }
+    }
+    
   }
   else if (state == State::FinishCustom)
   {
     displayCustomLayout(matrix, counter, btBuffer);
-    Serial.println("Finish Custom");
     state = State::Start;
+    
+    for (int i = 0; i < CLENGTH; ++i)
+    {
+      EEPROM.write(i, btBuffer[i]);
+    }
   }
 }
